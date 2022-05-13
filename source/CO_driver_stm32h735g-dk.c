@@ -1,5 +1,5 @@
 /*
- * CAN module object for STM32H7xx FDCAN peripheral IP.
+ * CAN module object for STM32U5xx FDCAN peripheral IP.
  *
  * This file is a template for other microcontrollers.
  *
@@ -27,8 +27,9 @@
  * Implementation Author:               Tilen Majerle <tilen@majerle.eu>
  */
 #include "301/CO_driver.h"
-#include "stm32h7xx_hal.h"
-#include "stm32h7xx_ll_rcc.h"
+#include "stm32u5xx_hal.h"
+#include "stm32u5xx_hal_rcc.h"
+#include "stm32u5xx_hal_fdcan.h"
 
 /**
  * \brief           Configuration structure for FDCAN
@@ -71,22 +72,27 @@ osSemaphoreId_t co_drv_periodic_thread_sync_semaphore;
 #endif /* defined(USE_OS) */
 
 /* FDCAN handle object */
-FDCAN_HandleTypeDef hfdcan1;
+extern FDCAN_HandleTypeDef hfdcan1;
 
 /*
  * Setup default config for 125kHz
  *
- * Settings assume FDCAN input kernel clock is 80 MHz.
+ * Settings assume FDCAN input kernel clock is 160 MHz.
  * See \ref fdcan_br_cfg_t for global options
+ *
+ * JDW:	The canfd clock is 160 Mhz, and we have the ClockDivider programmed to turn that in to 80 Mhz
+ * 		the Peak USB will work with up to a 4Mhz data rate with the U5 using the settings from PCAN-View for Windows
+ *
+ *
  */
 const static fdcan_br_cfg_t
 fdcan_br_cfg = {
-    .clk_presc = 4,                             /* Decrease input clock to 20 MHz */
-    .br_nominal = {                             /* Configure br nominal to 125 kHz */
-        .clk_presc = 8,                         /* Set nominal tq time to 2.5 MHz */
+    .clk_presc = 2,                             /* Decrease input clock to 80 MHz */
+    .br_nominal = {                             /* Configure br nominal to 1 MHz */
+        .clk_presc = 10,                         /* Set nominal tq time to 10 MHz */
         .swj = 1,
-        .ts1 = 16,
-        .ts2 = 3
+        .ts1 = 5,
+        .ts2 = 2
     },
 };
 
@@ -119,7 +125,11 @@ CO_CANmodule_init(
         uint16_t                txSize,
         uint16_t                CANbitRate)
 {
+// JDW: Not supported on U5:
+/*
     FDCAN_ClkCalUnitTypeDef fdcan_clk = {0};
+
+*/
 
     /* verify arguments */
     if (CANmodule == NULL || rxArray == NULL || txArray == NULL) {
@@ -139,6 +149,7 @@ CO_CANmodule_init(
     CANModule_local = CANmodule;
 
     /* Configure object variables */
+    CANmodule->CANptr = CANptr;
     CANmodule->rxArray = rxArray;
     CANmodule->rxSize = rxSize;
     CANmodule->txArray = txArray;
@@ -200,21 +211,27 @@ CO_CANmodule_init(
     hfdcan1.Init.ExtFiltersNbr = 0;
 
     /* Message part */
+
+// JDW: Not used on U5
+/*
     hfdcan1.Init.MessageRAMOffset = 0;
-    hfdcan1.Init.RxFifo0ElmtsNbr = 64;          /* FIFO 0 for standard message ID */
+    hfdcan1.Init.RxFifo0ElmtsNbr = 64;           FIFO 0 for standard message ID
     hfdcan1.Init.RxFifo0ElmtSize = FDCAN_DATA_BYTES_8;
     hfdcan1.Init.RxBuffersNbr = 0;
     hfdcan1.Init.RxBufferSize = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.TxEventsNbr = 0;
-    hfdcan1.Init.TxBuffersNbr = 0;              /* Do not use TX buffers */
-    hfdcan1.Init.TxFifoQueueElmtsNbr = 32;      /* Max number of TX FIFO size */
-    hfdcan1.Init.TxElmtSize = FDCAN_DATA_BYTES_64;   /* Max number of bytes per message in TX FIFO */
+    hfdcan1.Init.TxBuffersNbr = 0;               Do not use TX buffers
+    hfdcan1.Init.TxFifoQueueElmtsNbr = 32;       Max number of TX FIFO size
+    hfdcan1.Init.TxElmtSize = FDCAN_DATA_BYTES_64;    Max number of bytes per message in TX FIFO
+*/
     hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK) {
         /* What should we return here? */
         return CO_ERROR_ILLEGAL_ARGUMENT;
     }
 
+// JDW: Not used on U5
+/*
     /* Setup prescaler block config for FDCAN input module */
     switch (fdcan_br_cfg.clk_presc) {
         case 0:
@@ -241,6 +258,7 @@ CO_CANmodule_init(
         HAL_FDCAN_DeInit(&hfdcan1);
         return CO_ERROR_ILLEGAL_ARGUMENT;
     }
+*/
 
     /*
      * Configure global filter that is used as last check if message did not pass any of other filters:
@@ -688,13 +706,18 @@ HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferI
             }
         }
         /* Clear counter if no more messages */
+#if 0
+        if (CANModule_local->txSize == 0U) {
+#else // JDW: this is the original code, but it looks a little dubious but my idea didn't work:
         if (i == 0U) {
+#endif
             CANModule_local->CANtxCount = 0U;
         }
         CO_UNLOCK_CAN_SEND(CANModule_local);
     }
 }
 
+#if 0
 /**
  * \brief           Low-level microcontroller support init callback
  * \param[in]       fdcanHandle: FDCAN handle instance
@@ -709,10 +732,10 @@ HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* fdcanHandle) {
          *
          * System clock must output 80 MHz at PLL1Q output
          */
-        LL_RCC_SetFDCANClockSource(LL_RCC_FDCAN_CLKSOURCE_PLL1Q);
+/*        LL_RCC_SetFDCANClockSource(LL_RCC_FDCAN_CLKSOURCE_PLL1Q);*/
 
         /* Peripheral clock enable */
-        __HAL_RCC_FDCAN_CLK_ENABLE();
+/*        __HAL_RCC_FDCAN_CLK_ENABLE();*/
         __HAL_RCC_GPIOH_CLK_ENABLE();
 
         /*
@@ -744,7 +767,7 @@ void
 HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* fdcanHandle) {
     if (fdcanHandle->Instance == FDCAN1) {
         /* Peripheral clock disable */
-        __HAL_RCC_FDCAN_CLK_DISABLE();
+/*        __HAL_RCC_FDCAN_CLK_DISABLE();*/
 
         /*
          * FDCAN1 GPIO Configuration
@@ -770,6 +793,7 @@ FDCAN1_IT0_IRQHandler(void) {
     /* Wake-up application thread */
     CO_WAKEUP_APP_THREAD();
 }
+#endif
 
 /**
  * \brief           This function handles FDCAN1 interrupt 1

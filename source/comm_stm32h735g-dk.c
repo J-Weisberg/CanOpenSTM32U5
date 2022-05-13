@@ -36,12 +36,16 @@
 #include "comm.h"
 #include "lwrb/lwrb.h"
 
-#include "stm32h7xx.h"
-#include "stm32h7xx_ll_usart.h"
-#include "stm32h7xx_ll_bus.h"
-#include "stm32h7xx_ll_dma.h"
-#include "stm32h7xx_ll_gpio.h"
-#include "stm32h7xx_ll_rcc.h"
+#include "stm32u5xx.h"
+
+// JDW: We want to use this code within an existing U5 project, so, no need to define these things here:
+#if 0
+
+#include "stm32u5xx_ll_usart.h"
+#include "stm32u5xx_ll_bus.h"
+#include "stm32u5xx_ll_dma.h"
+#include "stm32u5xx_ll_gpio.h"
+#include "stm32u5xx_ll_rcc.h"
 
 /* Baudrate setup */
 #define DEBUG_BAUDRATE                              115200
@@ -319,3 +323,4 @@ USART3_IRQHandler(void) {
         prv_check_rx();
     }
 }
+#endif // #if 0

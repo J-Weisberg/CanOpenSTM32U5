@@ -32,8 +32,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/* Include STM32H7 HAL driver */
-#include "stm32h7xx_hal.h"
+/* Include STM32H7->U5 HAL driver */
+#include "stm32u5xx_hal.h"
 
 #ifdef CO_DRIVER_CUSTOM
 #include "CO_driver_custom.h"
@@ -165,9 +165,9 @@ typedef struct {
 #define CO_CONFIG_GLOBAL_FLAG_TIMERNEXT         CO_CONFIG_FLAG_TIMERNEXT
 
 /* External FDCAN handle object */
-#if defined(STM32H7xx)
+#if defined(STM32U5xx)
 extern FDCAN_HandleTypeDef hfdcan1;         /* Global FDCAN instance for HAL */
-#endif /* defined(STM32H7xx) */
+#endif /* defined(STM32U5xx) */
 
 /*
  * Operating system use case.
