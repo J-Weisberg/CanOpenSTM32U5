@@ -231,7 +231,7 @@ CO_CANmodule_init(
     }
 
 // JDW: Not used on U5
-/*
+#if 0
     /* Setup prescaler block config for FDCAN input module */
     switch (fdcan_br_cfg.clk_presc) {
         case 0:
@@ -258,7 +258,7 @@ CO_CANmodule_init(
         HAL_FDCAN_DeInit(&hfdcan1);
         return CO_ERROR_ILLEGAL_ARGUMENT;
     }
-*/
+#endif
 
     /*
      * Configure global filter that is used as last check if message did not pass any of other filters:
