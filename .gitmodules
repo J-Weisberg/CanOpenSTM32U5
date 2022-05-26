@@ -10,3 +10,6 @@
 	path = libs/lwmem
 	url = https://github.com/MaJerle/lwmem
 	branch = master
+[submodule "CANopenNode"]
+	path = CANopenNode
+	url = https://github.com/J-Weisberg/CANopenNode
