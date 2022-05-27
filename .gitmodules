@@ -9,3 +9,6 @@
 [submodule "CANopenNode"]
 	path = CANopenNode
 	url = https://github.com/J-Weisberg/CANopenNode
+[submodule "libs/lwrb"]
+	path = libs/lwrb
+	url = https://github.com/MaJerle/lwrb
