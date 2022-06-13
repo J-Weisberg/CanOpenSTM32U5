@@ -176,6 +176,10 @@ typedef struct {
 extern FDCAN_HandleTypeDef hfdcan1;         /* Global FDCAN instance for HAL */
 #endif /* defined(STM32U5xx) */
 
+#if defined(STM32MP15xx)
+extern FDCAN_HandleTypeDef hfdcan1;         /* Global FDCAN instance for HAL */
+#endif /* defined(STM32U5xx) */
+
 /*
  * Operating system use case.
  *
