@@ -27,9 +27,18 @@
  * Implementation Author:               Tilen Majerle <tilen@majerle.eu>
  */
 #include "301/CO_driver.h"
+
+#if defined(STM32U5xx)
 #include "stm32u5xx_hal.h"
 #include "stm32u5xx_hal_rcc.h"
 #include "stm32u5xx_hal_fdcan.h"
+#endif
+
+#if defined(STM32MP15xx)
+#include "stm32mp1xx_hal.h"
+#include "stm32mp1xx_hal_rcc.h"
+#include "stm32mp1xx_hal_fdcan.h"
+#endif
 
 /**
  * \brief           Configuration structure for FDCAN

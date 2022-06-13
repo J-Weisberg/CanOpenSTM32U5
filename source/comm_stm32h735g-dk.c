@@ -36,7 +36,13 @@
 #include "comm.h"
 #include "lwrb/lwrb.h"
 
+#if defined(STM32U5xx)
 #include "stm32u5xx.h"
+#endif
+
+#if defined(STM32MP15xx)
+#include "stm32mp1xx.h"
+#endif
 
 // JDW: We want to use this code within an existing U5 project, so, no need to define these things here:
 #if 0

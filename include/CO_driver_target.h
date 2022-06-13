@@ -32,8 +32,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/* Include STM32H7->U5 HAL driver */
+/* Include HAL driver */
+
+#if defined(STM32U5xx)
 #include "stm32u5xx_hal.h"
+#endif
+
+#if defined(STM32MP15xx)
+#include "stm32mp1xx_hal.h"
+#endif
 
 #ifdef CO_DRIVER_CUSTOM
 #include "CO_driver_custom.h"
