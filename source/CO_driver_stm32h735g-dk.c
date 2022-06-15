@@ -134,11 +134,9 @@ CO_CANmodule_init(
         uint16_t                txSize,
         uint16_t                CANbitRate)
 {
-// JDW: Not supported on U5:
-/*
+#if defined(STM32MP15xx)
     FDCAN_ClkCalUnitTypeDef fdcan_clk = {0};
-
-*/
+#endif
 
     /* verify arguments */
     if (CANmodule == NULL || rxArray == NULL || txArray == NULL) {
@@ -221,26 +219,25 @@ CO_CANmodule_init(
 
     /* Message part */
 
-// JDW: Not used on U5
-/*
+#if defined(STM32MP15xx)
     hfdcan1.Init.MessageRAMOffset = 0;
-    hfdcan1.Init.RxFifo0ElmtsNbr = 64;           FIFO 0 for standard message ID
+    hfdcan1.Init.RxFifo0ElmtsNbr = 64;              // FIFO 0 for standard message ID
     hfdcan1.Init.RxFifo0ElmtSize = FDCAN_DATA_BYTES_8;
     hfdcan1.Init.RxBuffersNbr = 0;
     hfdcan1.Init.RxBufferSize = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.TxEventsNbr = 0;
-    hfdcan1.Init.TxBuffersNbr = 0;               Do not use TX buffers
-    hfdcan1.Init.TxFifoQueueElmtsNbr = 32;       Max number of TX FIFO size
-    hfdcan1.Init.TxElmtSize = FDCAN_DATA_BYTES_64;    Max number of bytes per message in TX FIFO
-*/
+    hfdcan1.Init.TxBuffersNbr = 0;                  // Do not use TX buffers
+    hfdcan1.Init.TxFifoQueueElmtsNbr = 32;          // Max number of TX FIFO size
+    hfdcan1.Init.TxElmtSize = FDCAN_DATA_BYTES_64;  // Max number of bytes per message in TX FIFO
+#endif
+
     hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK) {
         /* What should we return here? */
         return CO_ERROR_ILLEGAL_ARGUMENT;
     }
 
-// JDW: Not used on U5
-#if 0
+#if defined(STM32MP15xx)
     /* Setup prescaler block config for FDCAN input module */
     switch (fdcan_br_cfg.clk_presc) {
         case 0:
